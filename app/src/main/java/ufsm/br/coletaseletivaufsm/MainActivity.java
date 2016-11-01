@@ -68,8 +68,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         //.setAction("Action", null).show();
+
             }
         });
+
     }
 
 
@@ -198,11 +200,11 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return dias[0].dia;
+                    return "Section 00";
                 case 1:
-                    return dias[1].dia;
+                    return "Section 1";
                 case 2:
-                    return dias[2].dia;
+                    return "Section 2";
             }
             return null;
         }
