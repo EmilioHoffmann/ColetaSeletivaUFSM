@@ -18,6 +18,13 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     /**
@@ -29,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
+    private Dia dias[];
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -39,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        dias = new Dia[3];
+        inicializar();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -50,18 +60,59 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-
+        dias = new Dia[3];
+        inicializar();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        //.setAction("Action", null).show();
             }
         });
-
     }
 
+
+    public class Dia{
+        String dia;
+        List<String> locais;
+
+        public String getDia() {
+            return dia;
+        }
+
+        public void setDia(String dia) {
+            this.dia = dia;
+        }
+
+        public List<String> getLocais() {
+            return locais;
+        }
+
+        public void setLocais(List<String> locais) {
+            this.locais = locais;
+        }
+    }
+
+    public void inicializar(){
+
+        InputStreamReader is = null;
+        try {
+            is = new InputStreamReader(getAssets().open("arquivo.csv"));
+            BufferedReader reader = new BufferedReader(is);
+            int x = 0;
+            String line;
+            while ((line = reader.readLine()) != null) {
+                dias[x] = new Dia();
+                dias[x].setDia(line.split(",")[0]);
+                dias[x++].setLocais(Arrays.asList(line.split(",")));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -147,11 +198,11 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "SECTION 1";
+                    return dias[0].dia;
                 case 1:
-                    return "SECTION 2";
+                    return dias[1].dia;
                 case 2:
-                    return "SECTION 3";
+                    return dias[2].dia;
             }
             return null;
         }
