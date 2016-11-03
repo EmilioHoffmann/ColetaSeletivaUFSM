@@ -27,8 +27,6 @@ public class MainActivity extends FragmentActivity {
         mTabHost = (FragmentTabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup(this, getSupportFragmentManager(), android.R.id.tabcontent);
 
-
-
         mTabHost.addTab(
                 mTabHost.newTabSpec("0").setIndicator(dias[0].getDias(), null),
                 FragmentTab.class, null);
