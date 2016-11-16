@@ -18,8 +18,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Date;
+
+import br.ufsm.coletaseletivaufsm.containers.Containers;
+import br.ufsm.coletaseletivaufsm.containers.ContainersDao;
+import br.ufsm.coletaseletivaufsm.containers.DaoManager;
 
 /**
  * Criado por Emilio Hoffmann em 11/2016
@@ -27,33 +30,30 @@ import java.util.Date;
  */
 
 public class MainActivity extends FragmentActivity {
-    private Dia dias[];
     private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DaoManager.createSingleton(this);
 
-        dias = new Dia[3];
 
         setContentView(R.layout.activity_main);
         try {
-            inicializar();
+            inicializarDB();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-
-    public void inicializar() throws InterruptedException {
+    public void inicializarDB() throws InterruptedException {
         Date date = new Date(System.currentTimeMillis()); //or simply new Date();
         String today = (String) android.text.format.DateFormat.format("dd/MM", date);
-
         SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-
         String updatedAt = sharedPreferences.getString("ATUALIZADOEM",  "");
         if(isOnline() && !today.equals(updatedAt)) {
             DownloadFile();
+            DaoManager.getContainersDao().deleteAll();
         }
 
         InputStreamReader is;
@@ -62,29 +62,33 @@ public class MainActivity extends FragmentActivity {
             is = new InputStreamReader(new FileInputStream(path));
             BufferedReader reader = new BufferedReader(is);
             int x = 0;
-            String line;
+            String line = reader.readLine();
 
             FragmentTabHost mTabHost = (FragmentTabHost) findViewById(android.R.id.tabhost);
             mTabHost.setup(getApplicationContext(), getSupportFragmentManager(), android.R.id.tabcontent);
 
+            mTabHost.addTab(
+                    mTabHost.newTabSpec(Integer.toString(0)).setIndicator("Segunda", null),
+                    FragmentTab.class, null);
+            mTabHost.addTab(
+                    mTabHost.newTabSpec(Integer.toString(1)).setIndicator("Quarta", null),
+                    FragmentTab.class, null);
+
+            DaoManager.getContainersDao().deleteAll();
+
             while ((line = reader.readLine()) != null) {
-                dias[x] = new Dia(line.split(",")[0], Arrays.asList(line.split(",")));
-                dias[x].setLocais(dias[x].getLocais().subList(1, dias[x].getLocais().size()));
-                mTabHost.addTab(
-                        mTabHost.newTabSpec(Integer.toString(x)).setIndicator(dias[x].getDias(), null),
-                        FragmentTab.class, null);
-                x++;
+                Containers container = new Containers(line);
+                ContainersDao containersDao = DaoManager.getContainersDao();
+                containersDao.insert(container);
             }
         } catch (IOException e) {
             e.printStackTrace();
             Thread.sleep(500);
-            inicializar();
+            inicializarDB();
         }
+
     }
 
-    public Dia[] getDias() {
-        return dias;
-    }
 
     public boolean isOnline() {
         ConnectivityManager cm =
@@ -124,6 +128,5 @@ public class MainActivity extends FragmentActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("ATUALIZADOEM", day);
         editor.apply();
-
     }
 }
