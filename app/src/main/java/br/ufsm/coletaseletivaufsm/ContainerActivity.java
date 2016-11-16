@@ -63,8 +63,8 @@ public class ContainerActivity extends AppCompatActivity {
         });
 
 
-        new DownloadImage().execute("https://upload.wikimedia.org/wikipedia/en/b/be/Google_Chrome_for_Android-_Android_5.0_Logo.png");
-        fotoContainer.setImageBitmap(bitmapDownload);
+        //new DownloadImageTask(fotoContainer).execute(containers.getLinkfoto() );
+        //fotoContainer.setImageBitmap(bitmapDownload);
 
     }
 
@@ -99,67 +99,38 @@ public class ContainerActivity extends AppCompatActivity {
 
 
 
-    // DownloadImage AsyncTask
-    private class DownloadImage extends AsyncTask<String, Void, Bitmap> {
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
-            // Create a progressdialog
-            mProgressDialog = new ProgressDialog(ContainerActivity.this);
-            // Set progressdialog title
-            mProgressDialog.setTitle("Download Image Tutorial");
-            // Set progressdialog message
-            mProgressDialog.setMessage("Loading...");
-            mProgressDialog.setIndeterminate(false);
-            // Show progressdialog
-            mProgressDialog.show();
+            Log.i("Async-Example", "onPreExecute Called");
+            mProgressDialog = ProgressDialog.show(ContainerActivity.this,
+                    "Wait", "Downloading Image");
         }
 
-        @Override
-        protected Bitmap doInBackground(String... URL) {
+        protected Bitmap doInBackground(String... urls) {
+            String url = urls[0];
+            Bitmap mIcon = null;
             try {
-                DownloadFile();
-            } catch (InterruptedException e) {
+                InputStream in = new java.net.URL(url).openStream();
+                mIcon = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
                 e.printStackTrace();
             }
-            Bitmap bitmap=null;
-        return bitmap;
+            return mIcon;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            mProgressDialog.dismiss();
+            bmImage.setImageBitmap(result);
         }
     }
 
-
-    public void DownloadFile() throws InterruptedException {
-
-        File folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        String fileName = folder.getAbsolutePath()+ "/arquivo.csv";
-        File myFile = new File(fileName);
-        if(myFile.exists()){
-            Boolean deletado = myFile.delete();
-            Log.d(TAG, "Arquivo deletado = " + deletado);
-        }
-
-        String url = "https://docs.google.com/spreadsheets/d/1g5v7cIC1lWsxtf4r2zQhp21ufed0MtF7bUsVm4S0AgY/pub?output=csv";
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            request.allowScanningByMediaScanner();
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
-        }
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "arquivo.csv");
-        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        manager.enqueue(request);
-
-        /**
-         * Setar a data que foi atualizado o arquivo
-         *
-         */
-        Date date = new Date(System.currentTimeMillis()); //or simply new Date();
-        String day = (String) android.text.format.DateFormat.format("dd/MM", date);
-        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("ATUALIZADOEM", day);
-        editor.apply();
-    }
 
 }
