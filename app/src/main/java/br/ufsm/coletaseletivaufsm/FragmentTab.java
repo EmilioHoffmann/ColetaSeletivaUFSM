@@ -1,11 +1,17 @@
 package br.ufsm.coletaseletivaufsm;
 
+import android.app.DownloadManager;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +19,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.api.client.http.HttpResponse;
+
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -27,7 +36,9 @@ import br.ufsm.coletaseletivaufsm.containers.DaoManager;
  */
 
 public class FragmentTab extends Fragment {
-
+    private ProgressDialog mProgressDialog;
+    private String downloadUrl = "http://www.9ori.com/store/media/images/8ab579a656.jpg";
+    private Bitmap bitmapDownload;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,4 +122,9 @@ public class FragmentTab extends Fragment {
             startActivity(intent);
         }
     }
+
+
+
+
+
 }
