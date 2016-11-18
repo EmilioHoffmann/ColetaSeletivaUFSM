@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -20,6 +22,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -63,12 +67,23 @@ public class ContainerActivity extends AppCompatActivity {
         });
 
 
+
+
+        if(isOnline()) {
+            Picasso.with(getApplicationContext()).load(containers.getLinkfoto()).into(fotoContainer);
+        }
         //new DownloadImageTask(fotoContainer).execute(containers.getLinkfoto() );
         //fotoContainer.setImageBitmap(bitmapDownload);
 
     }
 
 
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
     public void alerta(String titulo, String mensagem, final String uri) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
